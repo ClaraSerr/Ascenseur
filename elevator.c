@@ -7,7 +7,7 @@ Elevator* create_elevator(int capacity, int currentFloor, PersonList *persons){
     res->capacity = capacity;
     res->currentFloor = currentFloor;
     res->persons = persons;
-    res->targetFloor = persons->person->dest;
+    res->targetFloor = persons?persons->person->dest:0;
     return res;
 }
 
@@ -24,7 +24,7 @@ PersonList* exitElevator(Elevator *e){
     res->next = NULL;
     PersonList* personnes_dedans = e->persons;
     while(personnes_dedans!=NULL){
-        if(personnes_dedans->person->dest==e->currentFloor){
+        if(personnes_dedans->person->dest!=e->currentFloor){
             res->person = personnes_dedans->person;
             res->next = res;
         }
@@ -36,14 +36,12 @@ PersonList* exitElevator(Elevator *e){
 
 PersonList* enterElevator(Elevator *e, PersonList *waitingList){
     PersonList* new_waitingList=waitingList;
-    PersonList* list_balayee = waitingList;
     if(waitingList!=NULL){   
         while((taille_PersonList(e->persons)<e->capacity) || (new_waitingList!=NULL)){
             if(new_waitingList->person->src==e->currentFloor){
                 PersonList* new_cabine = insert(new_waitingList->person,e->persons);
                 e->persons=new_cabine;
             }
-        
             new_waitingList=new_waitingList->next;
         }
     }
@@ -51,14 +49,16 @@ PersonList* enterElevator(Elevator *e, PersonList *waitingList){
 }
 
 void stepElevator(Building *b){
-  if(b->elevator->currentFloor==b->elevator->targetFloor){
-    //des gens sortent de la cabine
     b->elevator->persons=exitElevator(b->elevator);
-    b->elevator->targetFloor=b->elevator->persons->person->dest;
     *b->waitingLists=enterElevator(b->elevator,*b->waitingLists);
+  if(b->elevator->currentFloor==b->elevator->targetFloor && b->elevator->persons!=0){
+    //des gens sortent de la cabine
+    
+    b->elevator->targetFloor=b->elevator->persons->person->dest;
+    
   }
   else{
-      *b->waitingLists=enterElevator(b->elevator,*b->waitingLists);
+      
       if(b->elevator->currentFloor>b->elevator->targetFloor){
           b->elevator->currentFloor--;
       }
