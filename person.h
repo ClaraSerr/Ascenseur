@@ -13,6 +13,6 @@ typedef struct _PersonList {
 
 Person* createPerson(int src, int dest);
 PersonList* insert(Person *p, PersonList *list);
-int taille_PersonList(PersonList *list);
+int taille_PL(PersonList *list);
 
 #endif
