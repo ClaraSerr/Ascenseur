@@ -71,38 +71,21 @@ void stepElevator(Building *b){
     }
     else{ 
         // l'ascenseur est arrivé à destination
-        if(b->elevator->persons == NULL){
-            // l'ascenseur est vide, on le remplit avec les Person dans la file d'attente
-            b->waitingLists[b->elevator->currentFloor] = enterElevator(b->elevator,b->waitingLists[b->elevator->currentFloor]);
-            if(b->elevator->persons != NULL){
-                // si des Person sont rentrées dans la cabine, on met à jour l'étage Taget (arbitrairement la destination du premier Person dans la cabine)
-                b->elevator->targetFloor = b->elevator->persons->person->dest;
-            }
-            else if(iswlvide(b)!=-1){
-                // l'ascensseur est toujours vide, mais il reste des Person dans les listes d'attente aux autres étages
-                b->elevator->targetFloor = iswlvide(b); // on met à jour l'étage Target
-            }
-            else{
-                // l'ascenseur revient au rdc à la fin
-                b->elevator->targetFloor = 0;
-            }
+        if(b->elevator->persons != NULL){
+            b->elevator->persons = exitElevator(b->elevator); // il reste dans la cabine des Person qui ne sont pas arrivées à destination
+        }
+        b->waitingLists[b->elevator->currentFloor] = enterElevator(b->elevator,b->waitingLists[b->elevator->currentFloor]);
+        if(b->elevator->persons != NULL){
+            // si des Person sont rentrées dans la cabine, on met à jour l'étage Taget (arbitrairement la destination du premier Person dans la cabine)
+            b->elevator->targetFloor = b->elevator->persons->person->dest;
+        }
+        else if(iswlvide(b)!=-1){
+            // l'ascensseur est toujours vide, mais il reste des Person dans les listes d'attente aux autres étages
+            b->elevator->targetFloor = iswlvide(b); // on met à jour l'étage Target
         }
         else{
-            // l'ascenseur contient des Person
-            b->elevator->persons = exitElevator(b->elevator); // il ne reste dans la cabine que les Person qui ne sont pas arrivées à destination
-            b->waitingLists[b->elevator->currentFloor] = enterElevator(b->elevator,b->waitingLists[b->elevator->currentFloor]); // des Person rentrent dans l'ascenseur
-            if(b->elevator->persons != NULL){
-                // des Person sont dans la cabine, on peut mettre à jour l'étage Target
-                b->elevator->targetFloor = b->elevator->persons->person->dest;
-            }
-            else if(iswlvide(b) != -1){
-                // l'ascensseur est vide, mais il reste des Person dans les listes d'attente aux autres étages
-                b->elevator->targetFloor = iswlvide(b); // on met à jour l'étage Target
-            }
-            else{
-                // l'ascenseur revient au rdc à la fin
-                b->elevator->targetFloor = 0;
-            }
+            // l'ascenseur revient au rdc à la fin
+            b->elevator->targetFloor = 0;
         }
     }
 }
