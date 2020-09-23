@@ -15,7 +15,7 @@ PersonList* insert(Person *p, PersonList *list){
     return res;
 }
 
-int taille_PersonList(PersonList *list){
+int taille_PL(PersonList *list){
     int count = 0;
     PersonList* copie=list;
     while(copie != NULL){
@@ -24,3 +24,4 @@ int taille_PersonList(PersonList *list){
     }
     return count;
 }
+

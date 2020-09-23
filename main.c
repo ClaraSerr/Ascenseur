@@ -17,6 +17,7 @@ void DisplayPersonList(WINDOW *win, PersonList *list, int level, int offset) {
     mvwaddch(win, level, offset+1, '0' + list->person->dest);
     list = list->next;
     offset+= PERSON_WIDTH;
+  
   }
 }
 
@@ -94,12 +95,7 @@ PersonList **waitingLists = malloc(nbFloor*sizeof(PersonList*));
     int input = wgetch(win);
     if(input == 'q') {
       run = false;
-    } else {
-      int level = input - '0';
-      if(0 <= level && level < nbFloor) {
-    building->elevator->targetFloor = level;
-      }
-    }
+    } 
 
     // Update state machine of elevator !!!!
 

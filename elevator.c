@@ -20,50 +20,75 @@ Building* create_building(int nbFloor, Elevator *elevator, PersonList **waitingL
 }
 
 PersonList* exitElevator(Elevator *e){
-    PersonList* res = (PersonList*) malloc(sizeof(PersonList));
-    res->next = NULL;
-    PersonList* personnes_dedans = e->persons;
-    while(personnes_dedans!=NULL){
-        if(personnes_dedans->person->dest!=e->currentFloor){
-            res->person = personnes_dedans->person;
-            res->next = res;
+    PersonList* stay = NULL;
+    PersonList* exit = NULL;
+    PersonList* cabine = e-> persons;
+  
+    while(cabine!=NULL){
+        if(cabine->person->dest==e->currentFloor){
+            exit=insert(cabine->person,exit);
+            
         }
-        personnes_dedans = personnes_dedans->next;
+        else{
+            
+            stay=insert(cabine->person,stay);
+            
+        }
+        cabine=cabine->next;
     }
-    return res;
-
-}
+    return stay;
+    }
 
 PersonList* enterElevator(Elevator *e, PersonList *waitingList){
     PersonList* new_waitingList=waitingList;
     if(waitingList!=NULL){   
-        while((taille_PersonList(e->persons)<e->capacity) || (new_waitingList!=NULL)){
-            if(new_waitingList->person->src==e->currentFloor){
-                PersonList* new_cabine = insert(new_waitingList->person,e->persons);
-                e->persons=new_cabine;
-            }
+        while((taille_PL(e->persons)<e->capacity) && (new_waitingList!=NULL)){
+            e->persons = insert(new_waitingList->person,e->persons);
             new_waitingList=new_waitingList->next;
         }
     }
     return new_waitingList;
 }
+int iswlvide(Building *b){
+    
+    for(int j=0;j<=4;j++){
+        if(b->waitingLists[j]!=NULL){
+            return b->waitingLists[j]->person->dest;
+        }
+    }
+    return -1;
+}
 
 void stepElevator(Building *b){
+    
+  if(b->elevator->currentFloor>b->elevator->targetFloor){
+      b->elevator->currentFloor--;
+
+  }
+  else if(b->elevator->currentFloor<b->elevator->targetFloor){
+          b->elevator->currentFloor++;
+}
+else if(b->elevator->persons==0){
+        b->waitingLists[b->elevator->currentFloor]=enterElevator(b->elevator,b->waitingLists[b->elevator->currentFloor]);
+        if(b->elevator->persons!=0 ){
+    
+            b->elevator->targetFloor=b->elevator->persons->person->dest;
+        }
+        else if(iswlvide(b)!=-1){
+            b->elevator->targetFloor=iswlvide(b);
+        }
+}
+    else{
+        
+        //des gens sortent de la cabine
     b->elevator->persons=exitElevator(b->elevator);
-    *b->waitingLists=enterElevator(b->elevator,*b->waitingLists);
-  if(b->elevator->currentFloor==b->elevator->targetFloor && b->elevator->persons!=0){
-    //des gens sortent de la cabine
+    b->waitingLists[b->elevator->currentFloor]=enterElevator(b->elevator,b->waitingLists[b->elevator->currentFloor]);
+    if(b->elevator->persons!=0){
     
     b->elevator->targetFloor=b->elevator->persons->person->dest;
-    
-  }
-  else{
-      
-      if(b->elevator->currentFloor>b->elevator->targetFloor){
-          b->elevator->currentFloor--;
-      }
-        else{
-            b->elevator->currentFloor++;
+    }
+    else if(iswlvide(b)!=-1){
+            b->elevator->targetFloor=iswlvide(b);
         }
-  }
-}
+    }
+    }
